@@ -53,21 +53,41 @@
     <button id="sensor9" class="sensor-btn inactivo">Sensor 9</button>
   </div>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
   <script>
-    // Simulación: Aquí deberías reemplazar por tu lógica de lectura desde tu ESP32 o Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCieImz5v4_jQqJZmR7UVKEodCyq5RGxes",
+  authDomain: "sensor-iot-5c5b0.firebaseapp.com",
+  databaseURL: "https://sensor-iot-5c5b0-default-rtdb.firebaseio.com",
+  projectId: "sensor-iot-5c5b0",
+  storageBucket: "sensor-iot-5c5b0.firebasestorage.app",
+  messagingSenderId: "500124966076",
+  appId: "1:500124966076:web:bf21853277ef759b02c4b9",
+  measurementId: "G-2G8QHM6ZY6"        
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     function actualizarEstado(sensor, activo) {
       const boton = document.getElementById(sensor);
       boton.className = "sensor-btn " + (activo ? "activo" : "inactivo");
     }
 
-    // Ejemplo de cómo actualizar los estados desde JavaScript (simulación)
-    // En producción, aquí deberías usar fetch() desde ESP32, WebSocket o Firebase
-    setInterval(() => {
+    function escucharSensores() {
       for (let i = 1; i <= 9; i++) {
-        const estado = Math.random() > 0.5; // Simula estado aleatorio
-        actualizarEstado("sensor" + i, estado);
+        const sensorID = "sensor" + i;
+        const ref = db.ref("sensores/" + sensorID);
+        ref.on("value", (snapshot) => {
+          const estado = snapshot.val();
+          actualizarEstado(sensorID, estado == 1);
+        });
       }
-    }, 2000);
+    }
+
+    escucharSensores();
   </script>
 </body>
 </html>
